@@ -1,12 +1,28 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-  <title>Lectura MQTT</title>
+  <meta charset="UTF-8">
+  <title>Valor MQTT</title>
   <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      background: #1e1e1e;
+      color: #00ffcc;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    #valor {
+      font-size: 10vw;
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
-  <h1>Valor recibido:</h1>
-  <div id="valor" style="font-size: 3em;">---</div>
+  <div id="valor">---</div>
 
   <script>
     const broker = 'wss://broker.emqx.io:8084/mqtt';
@@ -14,23 +30,23 @@
 
     const client = mqtt.connect(broker);
 
-    client.on('connect', function () {
+    client.on('connect', () => {
       console.log('Conectado al broker');
-      client.subscribe(topic, function (err) {
-        if (!err) {
-          console.log('Suscrito al tópico', topic);
+      client.subscribe(topic, (err) => {
+        if (err) {
+          console.error('Error al suscribirse:', err);
         } else {
-          console.error('Error de suscripción:', err);
+          console.log('Suscrito al tópico:', topic);
         }
       });
     });
 
-    client.on('message', function (topic, message) {
+    client.on('message', (topic, message) => {
       document.getElementById('valor').innerText = message.toString();
       console.log('Mensaje recibido:', message.toString());
     });
 
-    client.on('error', function (err) {
+    client.on('error', (err) => {
       console.error('Error de conexión:', err);
     });
   </script>
