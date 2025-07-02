@@ -1,37 +1,37 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>MQTT - Tópico "numero"</title>
-  <script src="https://unpkg.com/paho-mqtt/mqttws31.min.js"></script>
+  <title>Lectura MQTT</title>
+  <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 </head>
 <body>
-  <h2>Valor recibido en el tópico <code>numero</code>:</h2>
-  <div id="mensaje" style="font-size: 24px; color: blue;"></div>
+  <h1>Valor recibido:</h1>
+  <div id="valor" style="font-size: 3em;">---</div>
 
   <script>
-    const client = new Paho.MQTT.Client("broker.emqx.io", 8083, "webClient_" + Math.random());
+    const broker = 'wss://broker.emqx.io:8084/mqtt';
+    const topic = 'numero';
 
-    client.onMessageArrived = function (message) {
-      document.getElementById("mensaje").innerText = message.payloadString;
-      console.log("Mensaje recibido:", message.payloadString);
-    };
+    const client = mqtt.connect(broker);
 
-    client.onConnectionLost = function (responseObject) {
-      if (responseObject.errorCode !== 0) {
-        console.log("Conexión perdida: " + responseObject.errorMessage);
-      }
-    };
+    client.on('connect', function () {
+      console.log('Conectado al broker');
+      client.subscribe(topic, function (err) {
+        if (!err) {
+          console.log('Suscrito al tópico', topic);
+        } else {
+          console.error('Error de suscripción:', err);
+        }
+      });
+    });
 
-    client.connect({
-      onSuccess: function () {
-        console.log("Conectado al broker MQTT");
-        client.subscribe("numero");
-      },
-      onFailure: function (e) {
-        console.error("Fallo en la conexión: ", e);
-      },
-      useSSL: false
+    client.on('message', function (topic, message) {
+      document.getElementById('valor').innerText = message.toString();
+      console.log('Mensaje recibido:', message.toString());
+    });
+
+    client.on('error', function (err) {
+      console.error('Error de conexión:', err);
     });
   </script>
 </body>
