@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>MQTT - Tópico "numero"</title>
+  <script src="https://unpkg.com/paho-mqtt/mqttws31.min.js"></script>
+</head>
+<body>
+  <h2>Valor recibido en el tópico <code>numero</code>:</h2>
+  <div id="mensaje" style="font-size: 24px; color: blue;"></div>
+
+  <script>
+    const client = new Paho.MQTT.Client("broker.emqx.io", 8083, "webClient_" + Math.random());
+
+    client.onMessageArrived = function (message) {
+      document.getElementById("mensaje").innerText = message.payloadString;
+      console.log("Mensaje recibido:", message.payloadString);
+    };
+
+    client.onConnectionLost = function (responseObject) {
+      if (responseObject.errorCode !== 0) {
+        console.log("Conexión perdida: " + responseObject.errorMessage);
+      }
+    };
+
+    client.connect({
+      onSuccess: function () {
+        console.log("Conectado al broker MQTT");
+        client.subscribe("numero");
+      },
+      onFailure: function (e) {
+        console.error("Fallo en la conexión: ", e);
+      },
+      useSSL: false
+    });
+  </script>
+</body>
+</html>
